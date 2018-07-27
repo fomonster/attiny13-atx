@@ -112,11 +112,11 @@ void power_toggle(void) {
 /* ”правление выходом сброса */
 
 void reset_on(void) {
-	RESET_PORT |= (1<<RESET_PIN);
+	RESET_PORT &= ~(1<<RESET_PIN);	
 }
 
 void reset_off(void) {
-	RESET_PORT &= ~(1<<RESET_PIN);
+	RESET_PORT |= (1<<RESET_PIN);
 }
 
 void reset_impulse(void) {
