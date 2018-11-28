@@ -3,23 +3,23 @@ GccApplication1.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000002d0  00000000  00000000  00000074  2**1
+  0 .text         00000328  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800060  00800060  00000344  2**0
+  1 .data         00000000  00800060  00800060  0000039c  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          0000000a  00800060  00800060  00000344  2**0
+  2 .bss          0000000b  00800060  00800060  0000039c  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  00000344  2**0
+  3 .comment      00000030  00000000  00000000  0000039c  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000374  2**2
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000003cc  2**2
                   CONTENTS, READONLY
-  5 .debug_info   000002dc  00000000  00000000  000003b0  2**0
+  5 .debug_info   000002dc  00000000  00000000  00000408  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000002b6  00000000  00000000  0000068c  2**0
+  6 .debug_abbrev 000002b6  00000000  00000000  000006e4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000000ca  00000000  00000000  00000942  2**0
+  7 .debug_line   000000ca  00000000  00000000  0000099a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_str    00000100  00000000  00000000  00000a0c  2**0
+  8 .debug_str    00000100  00000000  00000000  00000a64  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -27,8 +27,8 @@ Disassembly of section .text:
 00000000 <__vectors>:
    0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
    2:	16 c0       	rjmp	.+44     	; 0x30 <__bad_interrupt>
-   4:	7b c0       	rjmp	.+246    	; 0xfc <__vector_2>
-   6:	45 c1       	rjmp	.+650    	; 0x292 <__vector_3>
+   4:	4e c0       	rjmp	.+156    	; 0xa2 <__vector_2>
+   6:	58 c1       	rjmp	.+688    	; 0x2b8 <__vector_3>
    8:	13 c0       	rjmp	.+38     	; 0x30 <__bad_interrupt>
    a:	12 c0       	rjmp	.+36     	; 0x30 <__bad_interrupt>
    c:	11 c0       	rjmp	.+34     	; 0x30 <__bad_interrupt>
@@ -52,11 +52,11 @@ Disassembly of section .text:
   24:	1d 92       	st	X+, r1
 
 00000026 <.do_clear_bss_start>:
-  26:	aa 36       	cpi	r26, 0x6A	; 106
+  26:	ab 36       	cpi	r26, 0x6B	; 107
   28:	b2 07       	cpc	r27, r18
   2a:	e1 f7       	brne	.-8      	; 0x24 <.do_clear_bss_loop>
-  2c:	3e d1       	rcall	.+636    	; 0x2aa <main>
-  2e:	4e c1       	rjmp	.+668    	; 0x2cc <_exit>
+  2c:	51 d1       	rcall	.+674    	; 0x2d0 <main>
+  2e:	7a c1       	rjmp	.+756    	; 0x324 <_exit>
 
 00000030 <__bad_interrupt>:
   30:	e7 cf       	rjmp	.-50     	; 0x0 <__vectors>
@@ -122,239 +122,274 @@ Disassembly of section .text:
   80:	aa 9a       	sbi	0x15, 2	; 21
   82:	08 95       	ret
 
-00000084 <on_btn_down>:
-  84:	81 e0       	ldi	r24, 0x01	; 1
-  86:	80 93 68 00 	sts	0x0068, r24	; 0x800068 <buttonState>
-  8a:	10 92 65 00 	sts	0x0065, r1	; 0x800065 <buttonDownCounter+0x1>
-  8e:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <buttonDownCounter>
-  92:	08 95       	ret
+00000084 <on_btn_up>:
+  84:	80 91 69 00 	lds	r24, 0x0069	; 0x800069 <buttonState>
+  88:	81 30       	cpi	r24, 0x01	; 1
+  8a:	11 f4       	brne	.+4      	; 0x90 <on_btn_up+0xc>
+  8c:	10 92 69 00 	sts	0x0069, r1	; 0x800069 <buttonState>
+  90:	08 95       	ret
 
-00000094 <on_btn_up>:
-  94:	80 91 68 00 	lds	r24, 0x0068	; 0x800068 <buttonState>
-  98:	81 30       	cpi	r24, 0x01	; 1
-  9a:	79 f5       	brne	.+94     	; 0xfa <__stack+0x5b>
-  9c:	80 91 69 00 	lds	r24, 0x0069	; 0x800069 <ledState>
-  a0:	81 11       	cpse	r24, r1
-  a2:	11 c0       	rjmp	.+34     	; 0xc6 <__stack+0x27>
-  a4:	82 e0       	ldi	r24, 0x02	; 2
-  a6:	80 93 69 00 	sts	0x0069, r24	; 0x800069 <ledState>
-  aa:	d7 df       	rcall	.-82     	; 0x5a <power_on>
-  ac:	10 92 67 00 	sts	0x0067, r1	; 0x800067 <powerCounter+0x1>
-  b0:	10 92 66 00 	sts	0x0066, r1	; 0x800066 <powerCounter>
-  b4:	10 92 63 00 	sts	0x0063, r1	; 0x800063 <flashingCounter+0x1>
-  b8:	10 92 62 00 	sts	0x0062, r1	; 0x800062 <flashingCounter>
-  bc:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <_edata+0x1>
-  c0:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <_edata>
-  c4:	18 c0       	rjmp	.+48     	; 0xf6 <__stack+0x57>
-  c6:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
-  ca:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
-  ce:	84 97       	sbiw	r24, 0x24	; 36
-  d0:	94 f0       	brlt	.+36     	; 0xf6 <__stack+0x57>
-  d2:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
-  d6:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
-  da:	18 16       	cp	r1, r24
-  dc:	19 06       	cpc	r1, r25
-  de:	5c f0       	brlt	.+22     	; 0xf6 <__stack+0x57>
-  e0:	c0 df       	rcall	.-128    	; 0x62 <reset_on>
-  e2:	84 e1       	ldi	r24, 0x14	; 20
-  e4:	90 e0       	ldi	r25, 0x00	; 0
-  e6:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <_edata+0x1>
-  ea:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <_edata>
-  ee:	10 92 63 00 	sts	0x0063, r1	; 0x800063 <flashingCounter+0x1>
-  f2:	10 92 62 00 	sts	0x0062, r1	; 0x800062 <flashingCounter>
-  f6:	10 92 68 00 	sts	0x0068, r1	; 0x800068 <buttonState>
-  fa:	08 95       	ret
+00000092 <is_button_down>:
+  92:	86 b3       	in	r24, 0x16	; 22
+  94:	86 95       	lsr	r24
+  96:	86 95       	lsr	r24
+  98:	91 e0       	ldi	r25, 0x01	; 1
+  9a:	89 27       	eor	r24, r25
+  9c:	81 70       	andi	r24, 0x01	; 1
+  9e:	90 e0       	ldi	r25, 0x00	; 0
+  a0:	08 95       	ret
 
-000000fc <__vector_2>:
-  fc:	1f 92       	push	r1
-  fe:	0f 92       	push	r0
- 100:	0f b6       	in	r0, 0x3f	; 63
- 102:	0f 92       	push	r0
- 104:	11 24       	eor	r1, r1
- 106:	2f 93       	push	r18
- 108:	3f 93       	push	r19
- 10a:	4f 93       	push	r20
- 10c:	5f 93       	push	r21
- 10e:	6f 93       	push	r22
- 110:	7f 93       	push	r23
- 112:	8f 93       	push	r24
- 114:	9f 93       	push	r25
- 116:	af 93       	push	r26
- 118:	bf 93       	push	r27
- 11a:	ef 93       	push	r30
- 11c:	ff 93       	push	r31
- 11e:	f8 94       	cli
- 120:	81 e2       	ldi	r24, 0x21	; 33
- 122:	90 e0       	ldi	r25, 0x00	; 0
- 124:	86 df       	rcall	.-244    	; 0x32 <delay_ms>
- 126:	f8 94       	cli
- 128:	b2 99       	sbic	0x16, 2	; 22
- 12a:	02 c0       	rjmp	.+4      	; 0x130 <__vector_2+0x34>
- 12c:	ab df       	rcall	.-170    	; 0x84 <on_btn_down>
- 12e:	01 c0       	rjmp	.+2      	; 0x132 <__vector_2+0x36>
- 130:	b1 df       	rcall	.-158    	; 0x94 <on_btn_up>
- 132:	78 94       	sei
- 134:	ff 91       	pop	r31
- 136:	ef 91       	pop	r30
- 138:	bf 91       	pop	r27
- 13a:	af 91       	pop	r26
- 13c:	9f 91       	pop	r25
- 13e:	8f 91       	pop	r24
- 140:	7f 91       	pop	r23
- 142:	6f 91       	pop	r22
- 144:	5f 91       	pop	r21
- 146:	4f 91       	pop	r20
- 148:	3f 91       	pop	r19
- 14a:	2f 91       	pop	r18
- 14c:	0f 90       	pop	r0
- 14e:	0f be       	out	0x3f, r0	; 63
- 150:	0f 90       	pop	r0
- 152:	1f 90       	pop	r1
- 154:	18 95       	reti
+000000a2 <__vector_2>:
+  a2:	1f 92       	push	r1
+  a4:	0f 92       	push	r0
+  a6:	0f b6       	in	r0, 0x3f	; 63
+  a8:	0f 92       	push	r0
+  aa:	11 24       	eor	r1, r1
+  ac:	2f 93       	push	r18
+  ae:	3f 93       	push	r19
+  b0:	4f 93       	push	r20
+  b2:	5f 93       	push	r21
+  b4:	6f 93       	push	r22
+  b6:	7f 93       	push	r23
+  b8:	8f 93       	push	r24
+  ba:	9f 93       	push	r25
+  bc:	af 93       	push	r26
+  be:	bf 93       	push	r27
+  c0:	ef 93       	push	r30
+  c2:	ff 93       	push	r31
+  c4:	f8 94       	cli
+  c6:	8c e3       	ldi	r24, 0x3C	; 60
+  c8:	90 e0       	ldi	r25, 0x00	; 0
+  ca:	b3 df       	rcall	.-154    	; 0x32 <delay_ms>
+  cc:	f8 94       	cli
+  ce:	e1 df       	rcall	.-62     	; 0x92 <is_button_down>
+  d0:	89 2b       	or	r24, r25
+  d2:	21 f0       	breq	.+8      	; 0xdc <__vector_2+0x3a>
+  d4:	81 e0       	ldi	r24, 0x01	; 1
+  d6:	80 93 69 00 	sts	0x0069, r24	; 0x800069 <buttonState>
+  da:	01 c0       	rjmp	.+2      	; 0xde <__vector_2+0x3c>
+  dc:	d3 df       	rcall	.-90     	; 0x84 <on_btn_up>
+  de:	78 94       	sei
+  e0:	ff 91       	pop	r31
+  e2:	ef 91       	pop	r30
+  e4:	bf 91       	pop	r27
+  e6:	af 91       	pop	r26
+  e8:	9f 91       	pop	r25
+  ea:	8f 91       	pop	r24
+  ec:	7f 91       	pop	r23
+  ee:	6f 91       	pop	r22
+  f0:	5f 91       	pop	r21
+  f2:	4f 91       	pop	r20
+  f4:	3f 91       	pop	r19
+  f6:	2f 91       	pop	r18
+  f8:	0f 90       	pop	r0
+  fa:	0f be       	out	0x3f, r0	; 63
+  fc:	0f 90       	pop	r0
+  fe:	1f 90       	pop	r1
+ 100:	18 95       	reti
 
-00000156 <update>:
- 156:	80 91 68 00 	lds	r24, 0x0068	; 0x800068 <buttonState>
- 15a:	81 30       	cpi	r24, 0x01	; 1
- 15c:	b1 f4       	brne	.+44     	; 0x18a <update+0x34>
- 15e:	80 91 64 00 	lds	r24, 0x0064	; 0x800064 <buttonDownCounter>
- 162:	90 91 65 00 	lds	r25, 0x0065	; 0x800065 <buttonDownCounter+0x1>
- 166:	01 96       	adiw	r24, 0x01	; 1
- 168:	90 93 65 00 	sts	0x0065, r25	; 0x800065 <buttonDownCounter+0x1>
- 16c:	80 93 64 00 	sts	0x0064, r24	; 0x800064 <buttonDownCounter>
- 170:	80 91 64 00 	lds	r24, 0x0064	; 0x800064 <buttonDownCounter>
- 174:	90 91 65 00 	lds	r25, 0x0065	; 0x800065 <buttonDownCounter+0x1>
- 178:	8d 36       	cpi	r24, 0x6D	; 109
- 17a:	91 05       	cpc	r25, r1
- 17c:	54 f0       	brlt	.+20     	; 0x192 <update+0x3c>
- 17e:	10 92 69 00 	sts	0x0069, r1	; 0x800069 <ledState>
- 182:	10 92 68 00 	sts	0x0068, r1	; 0x800068 <buttonState>
- 186:	6b df       	rcall	.-298    	; 0x5e <power_off>
- 188:	04 c0       	rjmp	.+8      	; 0x192 <update+0x3c>
- 18a:	10 92 65 00 	sts	0x0065, r1	; 0x800065 <buttonDownCounter+0x1>
- 18e:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <buttonDownCounter>
- 192:	80 91 69 00 	lds	r24, 0x0069	; 0x800069 <ledState>
- 196:	88 23       	and	r24, r24
- 198:	a9 f0       	breq	.+42     	; 0x1c4 <update+0x6e>
- 19a:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
- 19e:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
- 1a2:	01 96       	adiw	r24, 0x01	; 1
- 1a4:	90 93 67 00 	sts	0x0067, r25	; 0x800067 <powerCounter+0x1>
- 1a8:	80 93 66 00 	sts	0x0066, r24	; 0x800066 <powerCounter>
- 1ac:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
- 1b0:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
- 1b4:	85 97       	sbiw	r24, 0x25	; 37
- 1b6:	34 f0       	brlt	.+12     	; 0x1c4 <update+0x6e>
- 1b8:	84 e2       	ldi	r24, 0x24	; 36
- 1ba:	90 e0       	ldi	r25, 0x00	; 0
- 1bc:	90 93 67 00 	sts	0x0067, r25	; 0x800067 <powerCounter+0x1>
- 1c0:	80 93 66 00 	sts	0x0066, r24	; 0x800066 <powerCounter>
- 1c4:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
- 1c8:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
- 1cc:	84 97       	sbiw	r24, 0x24	; 36
- 1ce:	4c f0       	brlt	.+18     	; 0x1e2 <update+0x8c>
- 1d0:	b5 99       	sbic	0x16, 5	; 22
- 1d2:	04 c0       	rjmp	.+8      	; 0x1dc <update+0x86>
- 1d4:	10 92 69 00 	sts	0x0069, r1	; 0x800069 <ledState>
- 1d8:	42 df       	rcall	.-380    	; 0x5e <power_off>
- 1da:	03 c0       	rjmp	.+6      	; 0x1e2 <update+0x8c>
- 1dc:	81 e0       	ldi	r24, 0x01	; 1
- 1de:	80 93 69 00 	sts	0x0069, r24	; 0x800069 <ledState>
- 1e2:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
- 1e6:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
- 1ea:	18 16       	cp	r1, r24
- 1ec:	19 06       	cpc	r1, r25
- 1ee:	34 f5       	brge	.+76     	; 0x23c <update+0xe6>
- 1f0:	80 91 69 00 	lds	r24, 0x0069	; 0x800069 <ledState>
- 1f4:	88 23       	and	r24, r24
- 1f6:	11 f1       	breq	.+68     	; 0x23c <update+0xe6>
- 1f8:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
- 1fc:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
- 200:	01 97       	sbiw	r24, 0x01	; 1
- 202:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <_edata+0x1>
- 206:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <_edata>
- 20a:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
- 20e:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
- 212:	40 97       	sbiw	r24, 0x10	; 16
- 214:	0c f4       	brge	.+2      	; 0x218 <update+0xc2>
- 216:	27 df       	rcall	.-434    	; 0x66 <reset_off>
- 218:	82 e0       	ldi	r24, 0x02	; 2
- 21a:	80 93 69 00 	sts	0x0069, r24	; 0x800069 <ledState>
- 21e:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
- 222:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
- 226:	18 16       	cp	r1, r24
- 228:	19 06       	cpc	r1, r25
- 22a:	84 f0       	brlt	.+32     	; 0x24c <update+0xf6>
- 22c:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <_edata+0x1>
- 230:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <_edata>
- 234:	81 e0       	ldi	r24, 0x01	; 1
- 236:	80 93 69 00 	sts	0x0069, r24	; 0x800069 <ledState>
- 23a:	08 c0       	rjmp	.+16     	; 0x24c <update+0xf6>
- 23c:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <_edata+0x1>
- 240:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <_edata>
- 244:	10 df       	rcall	.-480    	; 0x66 <reset_off>
- 246:	84 e0       	ldi	r24, 0x04	; 4
- 248:	90 e0       	ldi	r25, 0x00	; 0
- 24a:	02 c0       	rjmp	.+4      	; 0x250 <update+0xfa>
- 24c:	82 e0       	ldi	r24, 0x02	; 2
- 24e:	90 e0       	ldi	r25, 0x00	; 0
- 250:	20 91 69 00 	lds	r18, 0x0069	; 0x800069 <ledState>
- 254:	21 11       	cpse	r18, r1
- 256:	01 c0       	rjmp	.+2      	; 0x25a <update+0x104>
- 258:	f9 ce       	rjmp	.-526    	; 0x4c <led_off>
- 25a:	21 30       	cpi	r18, 0x01	; 1
- 25c:	09 f4       	brne	.+2      	; 0x260 <update+0x10a>
- 25e:	f4 ce       	rjmp	.-536    	; 0x48 <led_on>
- 260:	22 30       	cpi	r18, 0x02	; 2
- 262:	b1 f4       	brne	.+44     	; 0x290 <update+0x13a>
- 264:	20 91 62 00 	lds	r18, 0x0062	; 0x800062 <flashingCounter>
- 268:	30 91 63 00 	lds	r19, 0x0063	; 0x800063 <flashingCounter+0x1>
- 26c:	2f 5f       	subi	r18, 0xFF	; 255
- 26e:	3f 4f       	sbci	r19, 0xFF	; 255
- 270:	30 93 63 00 	sts	0x0063, r19	; 0x800063 <flashingCounter+0x1>
- 274:	20 93 62 00 	sts	0x0062, r18	; 0x800062 <flashingCounter>
- 278:	20 91 62 00 	lds	r18, 0x0062	; 0x800062 <flashingCounter>
- 27c:	30 91 63 00 	lds	r19, 0x0063	; 0x800063 <flashingCounter+0x1>
- 280:	82 17       	cp	r24, r18
- 282:	93 07       	cpc	r25, r19
- 284:	2c f4       	brge	.+10     	; 0x290 <update+0x13a>
- 286:	e4 de       	rcall	.-568    	; 0x50 <led_toggle>
- 288:	10 92 63 00 	sts	0x0063, r1	; 0x800063 <flashingCounter+0x1>
- 28c:	10 92 62 00 	sts	0x0062, r1	; 0x800062 <flashingCounter>
- 290:	08 95       	ret
+00000102 <update>:
+ 102:	cf 93       	push	r28
+ 104:	df 93       	push	r29
+ 106:	80 91 6a 00 	lds	r24, 0x006A	; 0x80006a <ledState>
+ 10a:	88 23       	and	r24, r24
+ 10c:	a9 f0       	breq	.+42     	; 0x138 <update+0x36>
+ 10e:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
+ 112:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
+ 116:	01 96       	adiw	r24, 0x01	; 1
+ 118:	90 93 67 00 	sts	0x0067, r25	; 0x800067 <powerCounter+0x1>
+ 11c:	80 93 66 00 	sts	0x0066, r24	; 0x800066 <powerCounter>
+ 120:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
+ 124:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
+ 128:	85 97       	sbiw	r24, 0x25	; 37
+ 12a:	34 f0       	brlt	.+12     	; 0x138 <update+0x36>
+ 12c:	84 e2       	ldi	r24, 0x24	; 36
+ 12e:	90 e0       	ldi	r25, 0x00	; 0
+ 130:	90 93 67 00 	sts	0x0067, r25	; 0x800067 <powerCounter+0x1>
+ 134:	80 93 66 00 	sts	0x0066, r24	; 0x800066 <powerCounter>
+ 138:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
+ 13c:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
+ 140:	84 97       	sbiw	r24, 0x24	; 36
+ 142:	4c f0       	brlt	.+18     	; 0x156 <update+0x54>
+ 144:	b5 99       	sbic	0x16, 5	; 22
+ 146:	04 c0       	rjmp	.+8      	; 0x150 <update+0x4e>
+ 148:	10 92 6a 00 	sts	0x006A, r1	; 0x80006a <ledState>
+ 14c:	88 df       	rcall	.-240    	; 0x5e <power_off>
+ 14e:	03 c0       	rjmp	.+6      	; 0x156 <update+0x54>
+ 150:	81 e0       	ldi	r24, 0x01	; 1
+ 152:	80 93 6a 00 	sts	0x006A, r24	; 0x80006a <ledState>
+ 156:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
+ 15a:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
+ 15e:	18 16       	cp	r1, r24
+ 160:	19 06       	cpc	r1, r25
+ 162:	34 f5       	brge	.+76     	; 0x1b0 <update+0xae>
+ 164:	80 91 6a 00 	lds	r24, 0x006A	; 0x80006a <ledState>
+ 168:	88 23       	and	r24, r24
+ 16a:	11 f1       	breq	.+68     	; 0x1b0 <update+0xae>
+ 16c:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
+ 170:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
+ 174:	01 97       	sbiw	r24, 0x01	; 1
+ 176:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <_edata+0x1>
+ 17a:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <_edata>
+ 17e:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
+ 182:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
+ 186:	40 97       	sbiw	r24, 0x10	; 16
+ 188:	0c f4       	brge	.+2      	; 0x18c <update+0x8a>
+ 18a:	6d df       	rcall	.-294    	; 0x66 <reset_off>
+ 18c:	82 e0       	ldi	r24, 0x02	; 2
+ 18e:	80 93 6a 00 	sts	0x006A, r24	; 0x80006a <ledState>
+ 192:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
+ 196:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
+ 19a:	18 16       	cp	r1, r24
+ 19c:	19 06       	cpc	r1, r25
+ 19e:	84 f0       	brlt	.+32     	; 0x1c0 <update+0xbe>
+ 1a0:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <_edata+0x1>
+ 1a4:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <_edata>
+ 1a8:	81 e0       	ldi	r24, 0x01	; 1
+ 1aa:	80 93 6a 00 	sts	0x006A, r24	; 0x80006a <ledState>
+ 1ae:	08 c0       	rjmp	.+16     	; 0x1c0 <update+0xbe>
+ 1b0:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <_edata+0x1>
+ 1b4:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <_edata>
+ 1b8:	56 df       	rcall	.-340    	; 0x66 <reset_off>
+ 1ba:	84 e0       	ldi	r24, 0x04	; 4
+ 1bc:	90 e0       	ldi	r25, 0x00	; 0
+ 1be:	02 c0       	rjmp	.+4      	; 0x1c4 <update+0xc2>
+ 1c0:	82 e0       	ldi	r24, 0x02	; 2
+ 1c2:	90 e0       	ldi	r25, 0x00	; 0
+ 1c4:	c0 91 6a 00 	lds	r28, 0x006A	; 0x80006a <ledState>
+ 1c8:	c1 11       	cpse	r28, r1
+ 1ca:	02 c0       	rjmp	.+4      	; 0x1d0 <update+0xce>
+ 1cc:	3f df       	rcall	.-386    	; 0x4c <led_off>
+ 1ce:	1c c0       	rjmp	.+56     	; 0x208 <update+0x106>
+ 1d0:	c1 30       	cpi	r28, 0x01	; 1
+ 1d2:	11 f4       	brne	.+4      	; 0x1d8 <update+0xd6>
+ 1d4:	39 df       	rcall	.-398    	; 0x48 <led_on>
+ 1d6:	18 c0       	rjmp	.+48     	; 0x208 <update+0x106>
+ 1d8:	c2 30       	cpi	r28, 0x02	; 2
+ 1da:	b1 f4       	brne	.+44     	; 0x208 <update+0x106>
+ 1dc:	20 91 62 00 	lds	r18, 0x0062	; 0x800062 <flashingCounter>
+ 1e0:	30 91 63 00 	lds	r19, 0x0063	; 0x800063 <flashingCounter+0x1>
+ 1e4:	2f 5f       	subi	r18, 0xFF	; 255
+ 1e6:	3f 4f       	sbci	r19, 0xFF	; 255
+ 1e8:	30 93 63 00 	sts	0x0063, r19	; 0x800063 <flashingCounter+0x1>
+ 1ec:	20 93 62 00 	sts	0x0062, r18	; 0x800062 <flashingCounter>
+ 1f0:	20 91 62 00 	lds	r18, 0x0062	; 0x800062 <flashingCounter>
+ 1f4:	30 91 63 00 	lds	r19, 0x0063	; 0x800063 <flashingCounter+0x1>
+ 1f8:	82 17       	cp	r24, r18
+ 1fa:	93 07       	cpc	r25, r19
+ 1fc:	2c f4       	brge	.+10     	; 0x208 <update+0x106>
+ 1fe:	28 df       	rcall	.-432    	; 0x50 <led_toggle>
+ 200:	10 92 63 00 	sts	0x0063, r1	; 0x800063 <flashingCounter+0x1>
+ 204:	10 92 62 00 	sts	0x0062, r1	; 0x800062 <flashingCounter>
+ 208:	d0 91 69 00 	lds	r29, 0x0069	; 0x800069 <buttonState>
+ 20c:	d1 30       	cpi	r29, 0x01	; 1
+ 20e:	69 f5       	brne	.+90     	; 0x26a <update+0x168>
+ 210:	80 91 64 00 	lds	r24, 0x0064	; 0x800064 <buttonDownCounter>
+ 214:	90 91 65 00 	lds	r25, 0x0065	; 0x800065 <buttonDownCounter+0x1>
+ 218:	01 96       	adiw	r24, 0x01	; 1
+ 21a:	90 93 65 00 	sts	0x0065, r25	; 0x800065 <buttonDownCounter+0x1>
+ 21e:	80 93 64 00 	sts	0x0064, r24	; 0x800064 <buttonDownCounter>
+ 222:	80 91 64 00 	lds	r24, 0x0064	; 0x800064 <buttonDownCounter>
+ 226:	90 91 65 00 	lds	r25, 0x0065	; 0x800065 <buttonDownCounter+0x1>
+ 22a:	8d 36       	cpi	r24, 0x6D	; 109
+ 22c:	91 05       	cpc	r25, r1
+ 22e:	34 f0       	brlt	.+12     	; 0x23c <update+0x13a>
+ 230:	cc 23       	and	r28, r28
+ 232:	31 f0       	breq	.+12     	; 0x240 <update+0x13e>
+ 234:	10 92 6a 00 	sts	0x006A, r1	; 0x80006a <ledState>
+ 238:	12 df       	rcall	.-476    	; 0x5e <power_off>
+ 23a:	39 c0       	rjmp	.+114    	; 0x2ae <update+0x1ac>
+ 23c:	c1 11       	cpse	r28, r1
+ 23e:	37 c0       	rjmp	.+110    	; 0x2ae <update+0x1ac>
+ 240:	80 91 68 00 	lds	r24, 0x0068	; 0x800068 <prevButtonState>
+ 244:	81 30       	cpi	r24, 0x01	; 1
+ 246:	99 f1       	breq	.+102    	; 0x2ae <update+0x1ac>
+ 248:	82 e0       	ldi	r24, 0x02	; 2
+ 24a:	80 93 6a 00 	sts	0x006A, r24	; 0x80006a <ledState>
+ 24e:	05 df       	rcall	.-502    	; 0x5a <power_on>
+ 250:	10 92 67 00 	sts	0x0067, r1	; 0x800067 <powerCounter+0x1>
+ 254:	10 92 66 00 	sts	0x0066, r1	; 0x800066 <powerCounter>
+ 258:	10 92 63 00 	sts	0x0063, r1	; 0x800063 <flashingCounter+0x1>
+ 25c:	10 92 62 00 	sts	0x0062, r1	; 0x800062 <flashingCounter>
+ 260:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <_edata+0x1>
+ 264:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <_edata>
+ 268:	22 c0       	rjmp	.+68     	; 0x2ae <update+0x1ac>
+ 26a:	10 92 65 00 	sts	0x0065, r1	; 0x800065 <buttonDownCounter+0x1>
+ 26e:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <buttonDownCounter>
+ 272:	80 91 68 00 	lds	r24, 0x0068	; 0x800068 <prevButtonState>
+ 276:	d8 17       	cp	r29, r24
+ 278:	d1 f0       	breq	.+52     	; 0x2ae <update+0x1ac>
+ 27a:	cc 23       	and	r28, r28
+ 27c:	c1 f0       	breq	.+48     	; 0x2ae <update+0x1ac>
+ 27e:	80 91 66 00 	lds	r24, 0x0066	; 0x800066 <powerCounter>
+ 282:	90 91 67 00 	lds	r25, 0x0067	; 0x800067 <powerCounter+0x1>
+ 286:	84 97       	sbiw	r24, 0x24	; 36
+ 288:	94 f0       	brlt	.+36     	; 0x2ae <update+0x1ac>
+ 28a:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <_edata>
+ 28e:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <_edata+0x1>
+ 292:	18 16       	cp	r1, r24
+ 294:	19 06       	cpc	r1, r25
+ 296:	5c f0       	brlt	.+22     	; 0x2ae <update+0x1ac>
+ 298:	e4 de       	rcall	.-568    	; 0x62 <reset_on>
+ 29a:	84 e1       	ldi	r24, 0x14	; 20
+ 29c:	90 e0       	ldi	r25, 0x00	; 0
+ 29e:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <_edata+0x1>
+ 2a2:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <_edata>
+ 2a6:	10 92 63 00 	sts	0x0063, r1	; 0x800063 <flashingCounter+0x1>
+ 2aa:	10 92 62 00 	sts	0x0062, r1	; 0x800062 <flashingCounter>
+ 2ae:	d0 93 68 00 	sts	0x0068, r29	; 0x800068 <prevButtonState>
+ 2b2:	df 91       	pop	r29
+ 2b4:	cf 91       	pop	r28
+ 2b6:	08 95       	ret
 
-00000292 <__vector_3>:
- 292:	1f 92       	push	r1
- 294:	0f 92       	push	r0
- 296:	0f b6       	in	r0, 0x3f	; 63
- 298:	0f 92       	push	r0
- 29a:	11 24       	eor	r1, r1
- 29c:	f8 94       	cli
- 29e:	78 94       	sei
- 2a0:	0f 90       	pop	r0
- 2a2:	0f be       	out	0x3f, r0	; 63
- 2a4:	0f 90       	pop	r0
- 2a6:	1f 90       	pop	r1
- 2a8:	18 95       	reti
+000002b8 <__vector_3>:
+ 2b8:	1f 92       	push	r1
+ 2ba:	0f 92       	push	r0
+ 2bc:	0f b6       	in	r0, 0x3f	; 63
+ 2be:	0f 92       	push	r0
+ 2c0:	11 24       	eor	r1, r1
+ 2c2:	f8 94       	cli
+ 2c4:	78 94       	sei
+ 2c6:	0f 90       	pop	r0
+ 2c8:	0f be       	out	0x3f, r0	; 63
+ 2ca:	0f 90       	pop	r0
+ 2cc:	1f 90       	pop	r1
+ 2ce:	18 95       	reti
 
-000002aa <main>:
- 2aa:	10 92 69 00 	sts	0x0069, r1	; 0x800069 <ledState>
- 2ae:	10 92 68 00 	sts	0x0068, r1	; 0x800068 <buttonState>
- 2b2:	d9 de       	rcall	.-590    	; 0x66 <reset_off>
- 2b4:	d4 de       	rcall	.-600    	; 0x5e <power_off>
- 2b6:	d9 de       	rcall	.-590    	; 0x6a <init_hardware>
- 2b8:	de de       	rcall	.-580    	; 0x76 <init_buttons>
- 2ba:	78 94       	sei
- 2bc:	4c df       	rcall	.-360    	; 0x156 <update>
- 2be:	8f e1       	ldi	r24, 0x1F	; 31
- 2c0:	9d ef       	ldi	r25, 0xFD	; 253
- 2c2:	01 97       	sbiw	r24, 0x01	; 1
- 2c4:	f1 f7       	brne	.-4      	; 0x2c2 <main+0x18>
- 2c6:	00 c0       	rjmp	.+0      	; 0x2c8 <main+0x1e>
- 2c8:	00 00       	nop
- 2ca:	f8 cf       	rjmp	.-16     	; 0x2bc <main+0x12>
+000002d0 <main>:
+ 2d0:	10 92 68 00 	sts	0x0068, r1	; 0x800068 <prevButtonState>
+ 2d4:	10 92 67 00 	sts	0x0067, r1	; 0x800067 <powerCounter+0x1>
+ 2d8:	10 92 66 00 	sts	0x0066, r1	; 0x800066 <powerCounter>
+ 2dc:	10 92 65 00 	sts	0x0065, r1	; 0x800065 <buttonDownCounter+0x1>
+ 2e0:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <buttonDownCounter>
+ 2e4:	10 92 63 00 	sts	0x0063, r1	; 0x800063 <flashingCounter+0x1>
+ 2e8:	10 92 62 00 	sts	0x0062, r1	; 0x800062 <flashingCounter>
+ 2ec:	10 92 61 00 	sts	0x0061, r1	; 0x800061 <_edata+0x1>
+ 2f0:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <_edata>
+ 2f4:	ba de       	rcall	.-652    	; 0x6a <init_hardware>
+ 2f6:	b5 99       	sbic	0x16, 5	; 22
+ 2f8:	04 c0       	rjmp	.+8      	; 0x302 <main+0x32>
+ 2fa:	10 92 6a 00 	sts	0x006A, r1	; 0x80006a <ledState>
+ 2fe:	af de       	rcall	.-674    	; 0x5e <power_off>
+ 300:	04 c0       	rjmp	.+8      	; 0x30a <main+0x3a>
+ 302:	81 e0       	ldi	r24, 0x01	; 1
+ 304:	80 93 6a 00 	sts	0x006A, r24	; 0x80006a <ledState>
+ 308:	a8 de       	rcall	.-688    	; 0x5a <power_on>
+ 30a:	b5 de       	rcall	.-662    	; 0x76 <init_buttons>
+ 30c:	10 92 69 00 	sts	0x0069, r1	; 0x800069 <buttonState>
+ 310:	aa de       	rcall	.-684    	; 0x66 <reset_off>
+ 312:	78 94       	sei
+ 314:	f6 de       	rcall	.-532    	; 0x102 <update>
+ 316:	8f e1       	ldi	r24, 0x1F	; 31
+ 318:	9d ef       	ldi	r25, 0xFD	; 253
+ 31a:	01 97       	sbiw	r24, 0x01	; 1
+ 31c:	f1 f7       	brne	.-4      	; 0x31a <main+0x4a>
+ 31e:	00 c0       	rjmp	.+0      	; 0x320 <main+0x50>
+ 320:	00 00       	nop
+ 322:	f8 cf       	rjmp	.-16     	; 0x314 <main+0x44>
 
-000002cc <_exit>:
- 2cc:	f8 94       	cli
+00000324 <_exit>:
+ 324:	f8 94       	cli
 
-000002ce <__stop_program>:
- 2ce:	ff cf       	rjmp	.-2      	; 0x2ce <__stop_program>
+00000326 <__stop_program>:
+ 326:	ff cf       	rjmp	.-2      	; 0x326 <__stop_program>

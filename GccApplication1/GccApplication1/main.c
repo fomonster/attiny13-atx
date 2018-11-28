@@ -47,7 +47,7 @@
 #define RESET_DDR DDRB
 
 #define RESET_TIME 50			/* время импульса reset */
-#define DEBOUNCE_TIME 33        /* время устранения дребезга */
+#define DEBOUNCE_TIME 60        /* время устранения дребезга */
 #define POWEROK_THRESHOLD 36	 /* время отложенной проверки power ok - через 1 секунду проверяем примерно и в это время светодиод мерцает */
 #define HOLD_THRESHOLD 36 * 3    /* время(счетчик) долгого нажатия кнопки */
 #define FLASH_THRESHOLD 4	 /* время(счечик) задержка при мигании светодиодом */
@@ -65,12 +65,15 @@ enum LED_STATE {
 enum BUTTON_STATE {
 	UP,
 	DOWN
-} static buttonState;
+} static buttonState, prevButtonState;
 
 volatile int powerCounter = 0; // счетчик до POWEROK_THRESHOLD, когда питание включено
 volatile int buttonDownCounter = 0; // счетчик до, HOLD_THRESHOLD
 volatile int flashingCounter = 0; //
 volatile int resetFlashingCounter = 0; // счетчик для мигания по reset
+
+
+volatile int waitUnpress = 0;
 
 /* Утилиты */
 
@@ -155,22 +158,24 @@ void init_timers(void) {
 }
 
 /* события кнопки */
-
 void on_btn_down(void) {
 	buttonState = DOWN;
+	/*
 	buttonDownCounter = 0;
+
+if ( ledState == OFF ) {
+	ledState = FLASHING;
+	power_on();
+	powerCounter = 0;
+	flashingCounter = 0;
+	resetFlashingCounter = 0;
+}*/
 }
 
 void on_btn_up(void) {
 	if ( buttonState != DOWN ) return;
 	
-	if ( ledState == OFF ) {
-		ledState = FLASHING;
-		power_on();
-		powerCounter = 0;
-		flashingCounter = 0;
-		resetFlashingCounter = 0;
-	} else {
+	/*if ( ledState == ON ) { 
 
 		// Генерирование импульса reset
 		if ( powerCounter >= POWEROK_THRESHOLD && resetFlashingCounter <= 0) {
@@ -180,11 +185,15 @@ void on_btn_up(void) {
 			flashingCounter = 0;
 		}
 		
-	}
+	}*/
 	buttonState = UP;
 }
 
 /* Прерывания */
+int is_button_down(void)
+{
+	return (BUTTON_IN_PORT & (1<<BUTTON_PIN)) == 0;
+}
 
 // Прерывание кнопочное
 ISR(PCINT0_vect) {
@@ -195,7 +204,7 @@ ISR(PCINT0_vect) {
 	cli();
 
 	// Проверяем нажата кнопка или отжата (при нажатой кнопке низкий уровень сигнала)
-	if((BUTTON_IN_PORT & (1<<BUTTON_PIN)) == 0) { 
+	if(is_button_down()) { 
 		on_btn_down();
 	} else {
 		on_btn_up();
@@ -207,18 +216,8 @@ ISR(PCINT0_vect) {
 
 void update(void)
 {
-	// ловим долгое нажатие
-	if ( buttonState == DOWN ) {
-		buttonDownCounter++;
-		if ( buttonDownCounter > HOLD_THRESHOLD ) {
-			ledState = OFF;
-			buttonState = UP; // отжимаем кнопку
-			power_off();
-		}
-		} else {
-		buttonDownCounter = 0;
-	}
 	int flashingCounterThreshold = FLASH_THRESHOLD;
+
 	// Управление питанием и ловля power_ok
 	if ( ledState != OFF ) {
 		powerCounter++;
@@ -232,7 +231,7 @@ void update(void)
 		if((POWER_OK_IN_PORT & (1<<POWER_OK_PIN)) == 0) {
 			ledState = OFF;
 			power_off();
-			} else {
+		} else {
 			ledState = ON;
 		}
 	}
@@ -265,6 +264,38 @@ void update(void)
 		}
 	}
 
+	//
+	if ( buttonState == DOWN ) { // кнопка нажата
+		buttonDownCounter++;
+
+		
+		if ( buttonDownCounter > HOLD_THRESHOLD && ledState != OFF ) { // ловим долгое нажатие и выключаем питание
+			ledState = OFF;
+			power_off();
+		} else if ( ledState == OFF && prevButtonState != buttonState ) { // ловим простое нажатие и включаем питание
+			ledState = FLASHING;
+			power_on();
+			powerCounter = 0;
+			flashingCounter = 0;
+			resetFlashingCounter = 0;
+		}
+
+
+	} else {
+		buttonDownCounter = 0; 
+		if ( prevButtonState != buttonState && ledState != OFF ) { // кнопка отжата только-что
+			
+			if ( powerCounter >= POWEROK_THRESHOLD && resetFlashingCounter <= 0) {
+				
+				reset_on();
+				resetFlashingCounter = RESET_THRESHOLD;
+				flashingCounter = 0;
+			}
+
+		}
+	}
+	prevButtonState = buttonState;
+
 }
 
 // Прерывание таймера
@@ -277,19 +308,29 @@ ISR (TIM0_OVF_vect) {
 /* Точка входа */
 int main(void)
 {
-	ledState = OFF;
-	buttonState = UP;	
-	reset_off();	
-	power_off();
+	prevButtonState = UP;
+
+	powerCounter = 0; // счетчик до POWEROK_THRESHOLD, когда питание включено
+	buttonDownCounter = 0; // счетчик до, HOLD_THRESHOLD
+	flashingCounter = 0; //
+	resetFlashingCounter = 0; // счетчик для мигания по reset
 
 	init_hardware();
-	
+
+	// Если блок питания уже запитан, то устанавливаем соответствующий стейт
+	if((POWER_OK_IN_PORT & (1<<POWER_OK_PIN)) == 0) {
+		ledState = OFF;
+		power_off();
+	} else {
+		ledState = ON;
+		power_on();
+	}
+
 	init_buttons();
-	
-	//init_timers();
+	buttonState = UP;
+	reset_off();
 	
 	sei();
-	
 	while(1) {
 		update();
 		_delay_ms(27);
